@@ -1,0 +1,85 @@
+extends layout
+block head
+  link(rel='stylesheet', href='/stylesheets/bos.css')
+  script(src='/javascripts/charts.min.js')
+  script(src='/javascripts/bos.js')
+  script(src='http://www.google.com/jsapi')
+  script.
+    // Load the Visualization API and the piechart package.
+    google.load('visualization', '1.0', {'packages':['corechart']});
+
+    // Set a callback to run when the Google Visualization API is loaded.
+    google.setOnLoadCallback(drawChart);
+
+    // Callback that creates and populates a data table,
+    // instantiates the pie chart, passes in the data and
+    // draws it.
+    function drawChart() {
+      var totalwins = new Array();
+      totalWins = [!{totalWins}];
+      // Create the data table.
+      var data = new google.visualization.DataTable();
+      data.addColumn('string', 'Label');
+      data.addColumn('number', 'Value');
+      data.addRows(6);
+      data.setCell(0, 0, 'Brent');
+      data.setCell(1, 0, 'Luke');
+      data.setCell(2, 0, 'Scott');
+      data.setCell(3, 0, 'Gazheek');
+      data.setCell(4, 0, 'Aaron');
+      data.setCell(5, 0, 'Harman');
+      data.setCell(0, 1, (totalWins[0] < 0 ? 0 : totalWins[0]), totalWins[0].toString());
+      data.setCell(1, 1, (totalWins[1] < 0 ? 0 : totalWins[1]), totalWins[1].toString());
+      data.setCell(2, 1, (totalWins[2] < 0 ? 0 : totalWins[2]), totalWins[2].toString());
+      data.setCell(3, 1, (totalWins[3] < 0 ? 0 : totalWins[3]), totalWins[3].toString());
+      data.setCell(4, 1, (totalWins[4] < 0 ? 0 : totalWins[4]), totalWins[4].toString());
+      data.setCell(5, 1, (totalWins[5] < 0 ? 0 : totalWins[5]), totalWins[5].toString());
+      // Set chart options
+      var options = {title: 'Wins', type:'baseball'};
+
+      // Instantiate and draw our chart, passing in some options.
+      chart = new BarsOfStuff(document.getElementById('chartdiv'));
+      chart.draw(data, options);
+    }
+
+block content
+  h1= title
+  div
+    div(id="chartdiv" width="400px")
+  div
+    canvas(id="winsChart" width="400px" height="400px")
+    script.
+      var gamesOwed = new Array();
+      gamesOwed = [!{totalWins}];
+      for (var i=0;i<gamesOwed.length;i++){
+        console.log("owed: " + gamesOwed[i]);
+        if (gamesOwed[i] > 0){
+          gamesOwed[i] = 0;
+        }else{
+          gamesOwed[i] = Math.abs(gamesOwed[i]);
+        }
+      }
+      var data = {
+        labels : ["Brent","Luke","Scott","Gazheek","Aaron","Harman"],
+        datasets : [
+          {
+            fillColor : "rgba(255,50,50,0.9)",
+            strokeColor : "rgba(255,50,50,1)",
+            data : gamesOwed
+          },
+          {
+            fillColor : "rgba(50,255,50,0.9)",
+            strokeColor : "rgba(50,255,50,1)",
+            data : [!{totalWins}]
+          }
+        ]
+      }
+      var options = {
+        scaleOverlay : true,
+        scaleOverride : true,
+        scaleSteps : 20,
+        scaleStepWidth : 2,
+        scaleStartValue : 0
+      }
+      var ctx = $("#winsChart").get(0).getContext("2d");
+      var winsChart = new Chart(ctx).Bar(data,options);
