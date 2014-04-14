@@ -2,12 +2,48 @@ doctype html
 html
   head
     title= title
-    link(rel='stylesheet', href='/stylesheets/style.css')
     link(rel='stylesheet', href='/stylesheets/bootstrap.min.css')
     link(rel='stylesheet', href='/stylesheets/bootstrap-responsive.min.css')
+    link(rel='stylesheet', href='/stylesheets/style.css')
     script(src='/javascripts/jquery-1.11.0.min.js')
     script(src='/javascripts/bootstrap.min.js')
     block head
 
   body
+    //navbar
+    div(class="navbar-wrapper")
+      div(class="container")
+        div(class="navbar navbar-inverse navbar-static-top" role="navigation")
+          div(class="container")
+            div(class="navbar-header")
+                button(type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse")
+                  span(class="sr-only") Toggle navigation
+                  span(class="icon-bar")
+                  span(class="icon-bar")
+                  span(class="icon-bar")
+                a(class="navbar-brand" href="#") OnceTwiceSold!
+              div(class="navbar-collapse collapse")
+                ul(class="nav navbar-nav")
+                  li(class="active")
+                    a(href="#") Home
+                  li
+                    a(href="#about") About
+                  li
+                    a(href="#contact") Contact
+                  li(class="dropdown")
+                    a(href="#" class="dropdown-toggle" data-toggle="dropdown") Dropdown <b class="caret"></b>
+                    ul(class="dropdown-menu")
+                      li
+                        a(href="#") Action
+                      li
+                        a(href="#") Another action
+                      li
+                        a(href="#") Something else here
+                      li(class="divider")
+                      li(class="dropdown-header") Nav header
+                      li
+                        a(href="#") Separated link
+                      li
+                        a(href="#") One more separated link
+    block header
     block content

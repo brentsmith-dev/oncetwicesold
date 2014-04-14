@@ -14,9 +14,12 @@ var app = express();
 console.log("starting express");
 
 // view engine setup
+app.use(function(req, res, next) {
+  app.locals.pretty = true;
+  next();
+});
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'jade');
-
 app.use(favicon());
 app.use(logger('dev'));
 app.use(bodyParser.json());

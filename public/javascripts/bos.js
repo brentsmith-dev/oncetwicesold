@@ -47,7 +47,7 @@ BarsOfStuff.protocol = 'https:' == document.location.protocol ? 'https:' : 'http
 
 BarsOfStuff.STYLES = [
   {name:'train', img: 'train.png', height: 36, headImg: 'train_head.png', headWidth: 75},
-  {name:'baseball', img: 'baseball.png', height: 74, headImg: 'train_head.png', headWidth: 74},
+  {name:'baseball', img: 'baseball.png', height: 50, headImg: 'train_head.png', headWidth: 50},
   {name:'chocolate', img: 'chocolate.png', height: 48, headImg: 'chocolate_head.png', headWidth: 41},
   {name:'rope', img: 'rope.png', height: 34, headImg: 'rope_head.png', headWidth: 47},
   {name:'truffle', img: 'truffles.png', height: 40},

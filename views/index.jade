@@ -4,12 +4,15 @@ block head
   script(src='/javascripts/charts.min.js')
   script(src='/javascripts/bos.js')
   script(src='http://www.google.com/jsapi')
+  script(src="javascripts/jquery.tablesorter.min.js")
   script.
     // Load the Visualization API and the piechart package.
-    google.load('visualization', '1.0', {'packages':['corechart']});
+    google.load('visualization', '1.0', {'packages':['corechart', 'table']});
 
     // Set a callback to run when the Google Visualization API is loaded.
     google.setOnLoadCallback(drawChart);
+    google.setOnLoadCallback(drawLineChart);
+    google.setOnLoadCallback(drawTable);
 
     // Callback that creates and populates a data table,
     // instantiates the pie chart, passes in the data and
@@ -35,51 +38,93 @@ block head
       data.setCell(4, 1, (totalWins[4] < 0 ? 0 : totalWins[4]), totalWins[4].toString());
       data.setCell(5, 1, (totalWins[5] < 0 ? 0 : totalWins[5]), totalWins[5].toString());
       // Set chart options
-      var options = {title: 'Wins', type:'baseball'};
+      var options = {title: '', type:'baseball', height: 100};
 
       // Instantiate and draw our chart, passing in some options.
       chart = new BarsOfStuff(document.getElementById('chartdiv'));
       chart.draw(data, options);
     }
 
+    function drawLineChart() {
+      var historicalData = google.visualization.arrayToDataTable(!{winsByDay});
+      // Set chart options
+      var options = {title: '', width: 1140, height:420, hAxis:{slantedText:true}};
+
+      // Instantiate and draw our chart, passing in some options.
+      chart = new google.visualization.LineChart(document.getElementById('lineChartDiv'));
+      chart.draw(historicalData, options);
+    }
+
+    function drawTable() {
+      var data = new google.visualization.DataTable();
+      data.addColumn('string', 'Name');
+      data.addColumn('string', 'Team');
+      data.addColumn('number', 'Wins');
+      data.addColumn('number', 'Losses');
+      data.addColumn('number', 'Auction Cost');
+      data.addColumn('number', 'Projected Wins');
+      data.addColumn('number', 'Projected Value');
+      data.addRows(!{breakDown});
+
+      var table = new google.visualization.Table(document.getElementById('fullTable'));
+      //var formatter = new google.visualization.NumberFormat({negativeColor: 'red'});
+      var win81Formatter = new google.visualization.ColorFormat();
+      win81Formatter.addRange(0, 81, 'red');
+      win81Formatter.addRange(81, 162, 'green');
+      var negativeFormatter = new google.visualization.ColorFormat();
+      negativeFormatter.addRange(-1000,-1,'red');
+      negativeFormatter.addRange(1,1000,'green');
+      negativeFormatter.format(data,4);
+      negativeFormatter.format(data,6);
+      win81Formatter.format(data,5);
+      table.draw(data, {sortColumn: 6, sortAscending: false, allowHtml: true, showRowNumber: false});
+    }
+    // stop the carousel from rotating
+    $(function() {
+      $('.carousel').each(function(){
+        $(this).carousel({
+          interval: false
+        });
+      });
+    });
+
+    //$(function() {
+    //  $("#userTeamTable").tablesorter();
+    //});
+
+block header
+
 block content
-  h1= title
-  div
-    div(id="chartdiv" width="400px")
-  div
-    canvas(id="winsChart" width="400px" height="400px")
-    script.
-      var gamesOwed = new Array();
-      gamesOwed = [!{totalWins}];
-      for (var i=0;i<gamesOwed.length;i++){
-        console.log("owed: " + gamesOwed[i]);
-        if (gamesOwed[i] > 0){
-          gamesOwed[i] = 0;
-        }else{
-          gamesOwed[i] = Math.abs(gamesOwed[i]);
-        }
-      }
-      var data = {
-        labels : ["Brent","Luke","Scott","Gazheek","Aaron","Harman"],
-        datasets : [
-          {
-            fillColor : "rgba(255,50,50,0.9)",
-            strokeColor : "rgba(255,50,50,1)",
-            data : gamesOwed
-          },
-          {
-            fillColor : "rgba(50,255,50,0.9)",
-            strokeColor : "rgba(50,255,50,1)",
-            data : [!{totalWins}]
-          }
-        ]
-      }
-      var options = {
-        scaleOverlay : true,
-        scaleOverride : true,
-        scaleSteps : 20,
-        scaleStepWidth : 2,
-        scaleStartValue : 0
-      }
-      var ctx = $("#winsChart").get(0).getContext("2d");
-      var winsChart = new Chart(ctx).Bar(data,options);
+  div(id='myCarousel', class='carousel slide', data-ride='carousel')
+    // Indicators
+    ol(class='carousel-indicators')
+      li(class='active', data-target='#myCarousel', data-slide-to='0')
+      li(data-target='#myCarousel', data-slide-to='1')
+      li(data-target='#myCarousel', data-slide-to='2')
+    div(class='carousel-inner')
+      div(class='item active')
+        //img(data-src='holder.js/900x500/auto/#777:#7a7a7a/text:First slide', alt='First slide')
+        div(id='chartContainer', class='container')
+          h1(class='text-center white-title') Current Standings
+          div(id='chartdiv')
+      div(class='item')
+        div(id='lineChartContainer', class='container')
+          h1(class='text-center white-title') Historical Standings
+          div(id='lineChartDiv')
+      .item
+        //img(data-src='holder.js/900x500/auto/#555:#5a5a5a/text:Third slide', alt='Third slide')
+        .container
+          .carousel-caption
+            h1 One more for good measure.
+            p
+              | Cras justo odio, dapibus ac facilisis in, egestas eget quam. Donec id elit non mi porta gravida at eget metus. Nullam id dolor id nibh ultricies vehicula ut id elit.
+            p
+              a.btn.btn-lg.btn-primary(href='#', role='button') Browse gallery
+    a.left.carousel-control(href='#myCarousel', data-slide='prev')
+      span.glyphicon.glyphicon-chevron-left
+    a.right.carousel-control(href='#myCarousel', data-slide='next')
+      span.glyphicon.glyphicon-chevron-right
+  div(class='container')
+    h1(class='text-center') Current Team Records
+  div(class='container')
+    div(id='fullTable')

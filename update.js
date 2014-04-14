@@ -11,12 +11,20 @@ var connectionInfo = {
   "port": 5432,
   "host": "localhost"
 };
+
+// How many days back do we need to pull the data
+// Will only pull this date
+var daysPrevious = 1;
+process.argv.forEach(function (val, index, array) {
+  daysPrevious = val;
+  console.log('daysPrevious: ' + val);
+});
 // The postgres client
 var pgClient = new pg.Client(connectionInfo);
 
 var date = new Date();
 // we always pull yesterday's data
-date.setDate(date.getDate() - 1);
+date.setDate(date.getDate() - daysPrevious);
 var day = date.getDate();
 day = day < 10 ? '0'+day : ''+day;
 var month = date.getMonth() + 1;
@@ -82,8 +90,9 @@ fetchGames(function(gameArray){
       async.eachSeries(gameArray, function (game, callback) {
         // If a game is postponed we will see it show up later
         if (game.status != "Postponed"){
-          var winner = parseInt(game.home_win) == 1 ? game.home_team_name : game.away_team_name;
-          var loser = parseInt(game.home_win) == 1 ? game.away_team_name : game.home_team_name;
+          console.log('Home: ' + game.home_team_name + ' Runs: ' + game.home_team_runs + ' Visitor: ' + game.away_team_name + ' Runs: ' + game.away_team_runs);
+          var winner = parseInt(game.home_team_runs) > parseInt(game.away_team_runs) ? game.home_team_name : game.away_team_name;
+          var loser = parseInt(game.home_team_runs) < parseInt(game.away_team_runs) ? game.home_team_name : game.away_team_name;
           console.log("Winner: " + winner + " Loser: " + loser);
           insertGame(pgClient,date,winner,loser, callback);
         }else{
