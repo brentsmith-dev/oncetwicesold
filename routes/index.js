@@ -2,13 +2,14 @@ var pg = require('pg');
 var async = require('async');
 /* GET home page. */
 exports.index = function(req, res){
-  var connectionInfo = {
-    "user": "bsmith",
-    "password": "",
-    "database": "oncetwicesold",
-    "port": 5432,
-    "host": "localhost"
+  var connectionString = 'postgres://bsmith:@localhost/oncetwicesold'
+  if (process.env.DATABASE_URL){
+    console.log('process.env.DATABASE_URL found');
+    connectionString = process.env.DATABASE_URL;
+  }else{
+    console.log('process.env.DATABASE_URL missing assuming debug database');
   }
+
   var getUserCosts ='\
     SELECT username, SUM(cost)\
     FROM public.users\
@@ -78,7 +79,7 @@ exports.index = function(req, res){
 
 
   // The postgres client
-  var pgClient = new pg.Client(connectionInfo);
+  var pgClient = new pg.Client(connectionString);
   var totalWins = new Array();
   var startingPrice = new Array();
   var userCosts = {};

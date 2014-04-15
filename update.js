@@ -3,24 +3,23 @@ var pg = require('pg');
 var http = require('http');
 var async = require('async');
 
-// These should be in the env
-var connectionInfo = {
-  "user": "bsmith",
-  "password": "",
-  "database": "oncetwicesold",
-  "port": 5432,
-  "host": "localhost"
-};
+var connectionString = 'postgres://bsmith:@localhost/oncetwicesold'
+if (process.env.DATABASE_URL){
+  console.log('process.env.DATABASE_URL found');
+  connectionString = process.env.DATABASE_URL;
+}else{
+  console.log('process.env.DATABASE_URL missing assuming debug database');
+}
 
 // How many days back do we need to pull the data
 // Will only pull this date
 var daysPrevious = 1;
-process.argv.forEach(function (val, index, array) {
-  daysPrevious = val;
-  console.log('daysPrevious: ' + val);
-});
+if (process.argv.length >= 3){
+  daysPrevious = process.argv[2];
+  console.log('daysPrevious: ' + daysPrevious);
+}
 // The postgres client
-var pgClient = new pg.Client(connectionInfo);
+var pgClient = new pg.Client(connectionString);
 
 var date = new Date();
 // we always pull yesterday's data
