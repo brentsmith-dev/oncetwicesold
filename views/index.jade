@@ -72,8 +72,8 @@ block head
       win81Formatter.addRange(0, 81, 'red');
       win81Formatter.addRange(81, 162, 'green');
       var negativeFormatter = new google.visualization.ColorFormat();
-      negativeFormatter.addRange(-1000,-1,'red');
-      negativeFormatter.addRange(1,1000,'green');
+      negativeFormatter.addRange(-1000,0,'red');
+      negativeFormatter.addRange(0,1000,'green');
       negativeFormatter.format(data,4);
       negativeFormatter.format(data,6);
       win81Formatter.format(data,5);
