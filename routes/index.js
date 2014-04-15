@@ -25,7 +25,9 @@ exports.index = function(req, res){
     GROUP BY date,username\
     Order by date';
   var getUserTeamsWithRecord = '\
-    Select main.cost as "cost", main.username as "user", main.name as "team", winners.count as "wins", losers.count as "losses"\
+    Select main.cost as "cost", main.username as "user", main.name as "team", winners.count as "wins", losers.count as "losses",\
+    (CAST(winners.count AS DECIMAL) / (winners.count + losers.count))*162 + main.cost -81 as "projValue",\
+    (CAST(winners.count AS DECIMAL) / (winners.count + losers.count))*162 as "projWins"\
     FROM\
     (SELECT *\
       FROM public.users\
@@ -83,6 +85,7 @@ exports.index = function(req, res){
   var totalWins = new Array();
   var startingPrice = new Array();
   var userCosts = {};
+  var userValues = {};
   console.log('request noted')
   // these DB requests could be done in parallel
   async.series([
@@ -118,9 +121,11 @@ exports.index = function(req, res){
           winsByDay.push(['Month-Day', 'Brent','Luke','Aaron', 'Scott', 'Gazheek', 'Harman'])
           var currentDay = result.rows[0].month + '-' + result.rows[0].day;
           result.rows.forEach(function(row){
-            if (row.date == currentDay){
+            console.log("date: " + row.month+'-'+row.day + " current: " + currentDay);
+            if (row.month+'-'+row.day == currentDay){
               userWins[row.username] += parseInt(row.count);
             }else{
+              console.log("new Day: " + row.month+'-'+row.day);
               // Push the previous day's info
               winsByDay.push([currentDay,userWins['Brent'],userWins['Luke'],userWins['Aaron'],userWins['Scott'],userWins['Gazheek'],userWins['Harman']]);
               // update currentDay
@@ -146,9 +151,11 @@ exports.index = function(req, res){
             var wins = parseInt(row.wins);
             var losses = parseInt(row.losses);
             var cost = parseInt(row.cost);
-            var projectedWins = Math.round((wins/(wins+losses) * 162) * 100)/100;
-            var projectedValue = Math.round((projectedWins + cost - 81) * 100)/100;
+            var projectedWins = Math.round(row.projWins*100)/100;
+            var projectedValue = Math.round(row.projValue*100)/100;
             breakDown.push([row.user, row.team, wins , losses, cost, projectedWins, projectedValue])
+            if (userValues[row.user] == null){userValues[row.user] = 0;}
+            userValues[row.user] += projectedValue;
           });
           callback(null,breakDown)
         });
@@ -171,12 +178,22 @@ exports.index = function(req, res){
     // return the page
     function(err,results){
       console.log('rendering page')
+      // Generate total projected values for users
+      var userValueArray = new Array();
+      userValueArray.push(['User','Projected Value']);
+      for(var user in userValues) {
+        userValueArray.push([user, userValues[user]]);
+      }
+      userValueArray.sort(function(a,b){
+        return a[1] - b[1];
+      });
       res.render('index', {
         title: 'OnceTwiceSold',
         winsByDay:JSON.stringify(results[2]),
         breakDown:JSON.stringify(results[3]),
         totalWins:results[4].totalWins,
         startingPrice:results[4].startingPrice,
+        projectedValues:JSON.stringify(userValueArray),
         options: 'options'
       });
     }

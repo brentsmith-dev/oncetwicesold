@@ -70,6 +70,10 @@ body {
   padding-top: 50px;
 }
 
+#userValueChartContainer {
+  padding-top: 50px;
+}
+
 .white-title {
   color: #fff;
 }

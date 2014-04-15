@@ -13,6 +13,7 @@ block head
     google.setOnLoadCallback(drawChart);
     google.setOnLoadCallback(drawLineChart);
     google.setOnLoadCallback(drawTable);
+    google.setOnLoadCallback(drawValueChart);
 
     // Callback that creates and populates a data table,
     // instantiates the pie chart, passes in the data and
@@ -48,11 +49,21 @@ block head
     function drawLineChart() {
       var historicalData = google.visualization.arrayToDataTable(!{winsByDay});
       // Set chart options
-      var options = {title: '', width: 1140, height:420, hAxis:{slantedText:true}};
+      var options = {title: '', width: 1140, height:420, curveType: 'function', hAxis:{slantedText:true},vAxis:{viewWindowMode:'pretty',minValue:-24, gridlines:{count:10}}};
 
       // Instantiate and draw our chart, passing in some options.
       chart = new google.visualization.LineChart(document.getElementById('lineChartDiv'));
       chart.draw(historicalData, options);
+    }
+
+    function drawValueChart() {
+      var valueData = google.visualization.arrayToDataTable(!{projectedValues});
+      // Set chart options
+      var options = {title: '', width: 1140, height:420};
+
+      // Instantiate and draw our chart, passing in some options.
+      chart = new google.visualization.ColumnChart(document.getElementById('userValueChartDiv'));
+      chart.draw(valueData, options);
     }
 
     function drawTable() {
@@ -88,10 +99,6 @@ block head
       });
     });
 
-    //$(function() {
-    //  $("#userTeamTable").tablesorter();
-    //});
-
 block header
 
 block content
@@ -111,15 +118,10 @@ block content
         div(id='lineChartContainer', class='container')
           h1(class='text-center white-title') Historical Standings
           div(id='lineChartDiv')
-      .item
-        //img(data-src='holder.js/900x500/auto/#555:#5a5a5a/text:Third slide', alt='Third slide')
-        .container
-          .carousel-caption
-            h1 One more for good measure.
-            p
-              | Cras justo odio, dapibus ac facilisis in, egestas eget quam. Donec id elit non mi porta gravida at eget metus. Nullam id dolor id nibh ultricies vehicula ut id elit.
-            p
-              a.btn.btn-lg.btn-primary(href='#', role='button') Browse gallery
+      div(class='item')
+        div(id='userValueChartContainer', class='container')
+          h1(class='text-center white-title') Projected Values
+          div(id='userValueChartDiv')
     a.left.carousel-control(href='#myCarousel', data-slide='prev')
       span.glyphicon.glyphicon-chevron-left
     a.right.carousel-control(href='#myCarousel', data-slide='next')
